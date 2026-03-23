@@ -22,17 +22,38 @@ app.use(session({
     }
 }));
 
-// Session-based authentication middleware (TODO: Replace with JWT)
+// Middleware to check if user is authenticated using JWT
 function requireAuth(req, res, next) {
-    if (req.session && req.session.userId) {
+    // Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+    
+    // Get the token (remove 'Bearer ' prefix)
+    const token = authHeader.substring(7);
+    
+    try {
+        // Verify and decode the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // User info is now available from the token
         req.user = {
-            id: req.session.userId,
-            username: req.session.username,
-            email: req.session.email
+            id: decoded.id,
+            username: decoded.username,
+            email: decoded.email
         };
+        
         next();
-    } else {
-        res.status(401).json({ error: 'Please log in' });
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: 'Token expired' });
+        } else if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ error: 'Invalid token' });
+        } else {
+            return res.status(401).json({ error: 'Token verification failed' });
+        }
     }
 }
 
