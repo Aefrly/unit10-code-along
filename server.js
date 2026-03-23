@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { db, User, Post } = require('./database/setup');
 require('dotenv').config();
 
@@ -100,20 +101,26 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
         
-        // Create session (TODO: Replace with JWT)
-        req.session.userId = user.id;
-        req.session.username = user.username;
-        req.session.email = user.email;
-        
-        res.json({
-            message: 'Login successful',
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email
+        // Create JWT token containing user data 
+        const token = jwt.sign( 
+            { 
+                id: user.id, 
+                username: user.username, 
+                email: user.email 
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: process.env.JWT_EXPIRES_IN } 
+        ); 
+
+        res.json({ 
+            message: 'Login successful', 
+            token: token, 
+            user: { 
+                id: user.id, 
+                username: user.username, 
+                email: user.email 
             }
         });
-        
     } catch (error) {
         console.error('Error logging in user:', error);
         res.status(500).json({ error: 'Failed to login' });
