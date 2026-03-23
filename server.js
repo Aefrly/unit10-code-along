@@ -1,5 +1,4 @@
 const express = require('express');
-const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { db, User, Post } = require('./database/setup');
@@ -10,17 +9,6 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-
-// Session middleware (TODO: Replace with JWT)
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}));
 
 // Middleware to check if user is authenticated using JWT
 function requireAuth(req, res, next) {
@@ -150,13 +138,8 @@ app.post('/api/login', async (req, res) => {
 
 // POST /api/logout - User logout
 app.post('/api/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to logout' });
-        }
         res.json({ message: 'Logout successful' });
     });
-});
 
 // PROTECTED ROUTES
 
