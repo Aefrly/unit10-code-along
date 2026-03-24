@@ -8,7 +8,7 @@ async function initializeDatabase() {
         await db.authenticate();
         console.log('Database connection established successfully.');
         
-        await db.sync({ force: false });
+        await db.sync({ force: true }); // Force sync to reset database and create tables
         console.log('Database synchronized successfully.');
         
         // Create sample users for testing
