@@ -45,6 +45,39 @@ function requireAuth(req, res, next) {
     }
 }
 
+// Role-based middleware functions
+function requireAuthor(req, res, next) {
+    // Check if user is authenticated first
+    if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    // Check if user has author or editor role
+    if (req.user.role === 'author' || req.user.role === 'editor') {
+        next();
+    } else {
+        return res.status(403).json({ 
+            error: 'Access denied. Author role required.' 
+        });
+    }
+}
+
+function requireEditor(req, res, next) {
+    // Check if user is authenticated first
+    if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    // Check if user has editor role
+    if (req.user.role === 'editor') {
+        next();
+    } else {
+        return res.status(403).json({ 
+            error: 'Access denied. Editor role required.' 
+        });
+    }
+}
+
 // Test database connection
 async function testConnection() {
     try {
