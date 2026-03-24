@@ -249,7 +249,7 @@ app.put('/api/posts/:id', requireAuth, requireAuthor, async (req, res) => {
         }
         
         // Check if user owns the post
-        if (post.authorId !== req.user.id) {
+        if (req.user.role === 'author' && post.authorId !== req.user.id) {
             return res.status(403).json({ error: 'You can only edit your own posts' });
         }
         
