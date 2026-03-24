@@ -220,7 +220,7 @@ app.get('/api/posts', async (req, res) => {
 });
 
 // POST /api/posts - Create new post
-app.post('/api/posts', requireAuth, async (req, res) => {
+app.post('/api/posts', requireAuth, requireAuthor, async (req, res) => {
     try {
         const { title, content, published = false } = req.body;
         
@@ -239,7 +239,7 @@ app.post('/api/posts', requireAuth, async (req, res) => {
 });
 
 // PUT /api/posts/:id - Update post
-app.put('/api/posts/:id', requireAuth, async (req, res) => {
+app.put('/api/posts/:id', requireAuth, requireAuthor, async (req, res) => {
     try {
         const { title, content, published } = req.body;
         
